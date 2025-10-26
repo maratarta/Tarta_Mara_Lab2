@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Tarta_Mara_Lab2.Data;
 using Tarta_Mara_Lab2.Models;
 
-namespace Tarta_Mara_Lab2.Pages.Publishers
+namespace Tarta_Mara_Lab2.Pages.Categories
 {
     public class IndexModel : PageModel
     {
@@ -19,12 +19,11 @@ namespace Tarta_Mara_Lab2.Pages.Publishers
             _context = context;
         }
 
-        public IList<Publisher> Publisher { get;set; } = default!;
+        public IList<Category> Category { get;set; } = default!;
 
         public async Task OnGetAsync()
         {
-            Publisher = await _context.Publisher.ToListAsync();
-            
+            Category = await _context.Category.ToListAsync();
         }
     }
 }
