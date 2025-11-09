@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Design;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Tarta_Mara_Lab2.Data;
 using Tarta_Mara_Lab2.Models;
+using Tarta_Mara_Lab2.Models.ViewModels;
 
 namespace Tarta_Mara_Lab2.Pages.Categories
 {
@@ -21,9 +23,28 @@ namespace Tarta_Mara_Lab2.Pages.Categories
 
         public IList<Category> Category { get;set; } = default!;
 
-        public async Task OnGetAsync()
+        public CategoryIndexData CategoryData { get; set; }
+        public int CategoryID { get; set; }
+        public int BookID { get; set; }
+
+
+        public async Task OnGetAsync(int? id, int? bookID)
         {
-            Category = await _context.Category.ToListAsync();
+            CategoryData = new CategoryIndexData();
+            CategoryData.Categories = await _context.Category
+                .Include(i => i.BookCategories)
+                .ThenInclude(i=>i.Book)
+                    .ThenInclude(c => c.Author)
+                .OrderBy(i => i.CategoryName)
+                .ToListAsync();
+
+            if (id != null)
+            {
+                CategoryID = id.Value;
+                Category category = CategoryData.Categories
+                    .Where(i => i.ID == id.Value).Single();
+                CategoryData.BookCategories = category.BookCategories;
+            }
         }
     }
 }

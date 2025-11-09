@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -24,18 +25,35 @@ namespace Tarta_Mara_Lab2.Pages.Books
         public int BookID { get; set; }
         public int CategoryID { get; set; }
 
+        public string TitleSort { get; set; }
+        public string AuthorSort { get; set; }
 
-        public async Task OnGetAsync(int? id, int? categoryID)
+        public string CurrentFilter { get; set; }
+
+
+        public async Task OnGetAsync(int? id, int? categoryID, string sortOrder, string searchString)
         {
             BookD = new BookData();
-            BookD.Books = await _context.Book
-                .Include(b => b.Publisher)
-                .Include(b => b.Author)
-                .Include(b => b.BookCategories)
-                .ThenInclude(b => b.Category)
-                .AsNoTracking()
-                .OrderBy(b => b.Title)
-                .ToListAsync();
+
+            TitleSort = String.IsNullOrEmpty(sortOrder) ? "title_desc" : "";
+            AuthorSort = sortOrder == "author" ? "author_desc" : "author";
+
+            CurrentFilter = searchString;
+
+
+                BookD.Books = await _context.Book
+                    .Include(b => b.Publisher)
+                    .Include(b => b.Author)
+                    .Include(b => b.BookCategories)
+                    .ThenInclude(b => b.Category)
+                    .AsNoTracking()
+                    .OrderBy(b => b.Title)
+                    .ToListAsync();
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                BookD.Books = BookD.Books.Where(s => s.Author.FirstName.Contains(searchString) || s.Author.LastName.Contains(searchString) || s.Title.Contains(searchString));
+            }
 
             if (id != null)
             {
@@ -43,6 +61,26 @@ namespace Tarta_Mara_Lab2.Pages.Books
                 Book book = BookD.Books
                     .Where(i => i.ID == id.Value).Single();
                 BookD.Categories = book.BookCategories.Select(s => s.Category);
+            }
+
+            switch (sortOrder)
+            {
+                case "title_desc":
+                    BookD.Books = BookD.Books.OrderByDescending(s => s.Title);
+                    break;
+
+                case "author_desc":
+                    BookD.Books = BookD.Books.OrderByDescending(s => s.Author.NumeIntreg);
+                    break;
+
+                case "author":
+                    BookD.Books = BookD.Books.OrderBy(s => s.Author.NumeIntreg);
+                    break;
+
+                default:
+                    BookD.Books = BookD.Books.OrderBy(s => s.Title);
+                    break;
+
             }
         }
     }

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Tarta_Mara_Lab2.Data;
 using Tarta_Mara_Lab2.Models;
 
-namespace Tarta_Mara_Lab2.Pages
+namespace Tarta_Mara_Lab2.Pages.Borrowings
 {
     public class IndexModel : PageModel
     {
@@ -19,11 +19,13 @@ namespace Tarta_Mara_Lab2.Pages
             _context = context;
         }
 
-        public IList<Member> Member { get;set; } = default!;
+        public IList<Borrowing> Borrowing { get;set; } = default!;
 
         public async Task OnGetAsync()
         {
-            Member = await _context.Member.ToListAsync();
+            Borrowing = await _context.Borrowing
+                .Include(b => b.Book)
+                .Include(b => b.Member).ToListAsync();
         }
     }
 }

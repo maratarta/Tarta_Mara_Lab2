@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Tarta_Mara_Lab2.Data;
 using Tarta_Mara_Lab2.Models;
 
-namespace Tarta_Mara_Lab2.Pages
+namespace Tarta_Mara_Lab2.Pages.Members
 {
     public class IndexModel : PageModel
     {
